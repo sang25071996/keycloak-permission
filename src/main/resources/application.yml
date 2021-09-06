@@ -1,0 +1,86 @@
+
+#config pattern log console
+logging:
+  level:
+    root: INFO
+    org.springframework: INFO
+    sang.uaa.com.vn: TRACE
+    org.springframework.data.mongodb: DEBUG
+    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+    org.springframework.data.mongodb.repository.query: DEBUG
+    org.keycloak: TRACE
+    org.keycloak.adapters.authorization: DEBUG
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%t] %-5level %C - %msg%n"
+    
+keycloak:
+  auth-server-url: http://localhost:8080/auth
+  realm: dev
+  resource: sang-uaa
+  credentials:
+    secret: 7c80f1f6-9977-4a81-96a2-49756d2c26ea
+  ssl-required: external
+  enabled: false
+  bearer-only: true
+  use-resource-role-mappings: true
+  policy-enforcer-config:
+    http-method-as-scope: true
+    enforcement-mode: ENFORCING
+    paths:
+    - path: /*
+      enforcement-mode: disabled
+      
+    - path: /master-data/students
+      enforcement-mode: PERMISSIVE
+      methods:
+      - method: GET
+      scopes:
+      - VIEW
+    - path: /master-data/students
+      methods:
+      - method: POST
+      scopes:
+      - CREATE
+      
+#config folder upload
+file:
+  upload:
+    path: classpath:file
+    
+server:
+  port: 8089
+#  servlet:
+#    context-path: /api
+    
+spring:
+#config upload file
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 2KB
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        id.new_generator_mappings: true
+        jdbc.batch_size: 25
+        order_inserts: true
+        order_updates: true
+        enable_lazy_load_no_trans: true
+      
+    hibernate:
+      naming:
+        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+    show-sql: true
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_DATABASE:sang-uaa-service}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:123456}
+    testOnBorrow: true
+    testWhileIdle: true
+    validationQuery: SELECT 1
